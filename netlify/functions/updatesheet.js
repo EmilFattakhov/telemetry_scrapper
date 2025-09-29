@@ -114,18 +114,18 @@ export default async (req, context) => {
       const currentTimestamp = new Date();
 
       // Check if data was updated less than 10 minutes ago
-      const [taurusLastTimestamp, mainnetLastTimestamp] = await Promise.all([
-        getLastEntryTimestamp('taurus'),
+      const [chronosLastTimestamp, mainnetLastTimestamp] = await Promise.all([
+        getLastEntryTimestamp('Chronos'),
         getLastEntryTimestamp('mainnet'),
       ]);
 
       const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
 
-      const shouldUpdateTaurus = !taurusLastTimestamp || (currentTimestamp - taurusLastTimestamp) >= tenMinutes;
+      const shouldUpdateChronos = !chronosLastTimestamp || (currentTimestamp - chronosLastTimestamp) >= tenMinutes;
       const shouldUpdateMainnet = !mainnetLastTimestamp || (currentTimestamp - mainnetLastTimestamp) >= tenMinutes;
 
       // If neither needs updating, exit early
-      if (!shouldUpdateTaurus && !shouldUpdateMainnet) {
+      if (!shouldUpdateChronos && !shouldUpdateMainnet) {
         console.log('Data was recently updated. Skipping this run.');
         return new Response(JSON.stringify({ message: "Data was recently updated. Skipping this run.", nextRun: next_run }), {
           status: 200,
@@ -143,35 +143,35 @@ export default async (req, context) => {
       const results = [];
       const timestamp = currentTimestamp.toISOString();
 
-      if (shouldUpdateTaurus) {
-        const taurusPage = await browser.newPage();
-        const taurusData = await scrapeNetwork(
-          taurusPage,
-          'https://telemetry.subspace.network/#list/0x295aeafca762a304d92ee1505548695091f6082d3f0aa4d092ac3cd6397a6c5e',
-          'taurus'
+      if (shouldUpdateChronos) {
+        const chronosPage = await browser.newPage();
+        const chronosData = await scrapeNetwork(
+          chronosPage,
+          'https://telemetry.subspace.network/#list/0x91912b429ce7bf2975440a0920b46a892fddeeaed6ccc11c93f2d57ad1bd69ab',
+          'chronos'
         );
-        console.log('Taurus data extracted:', { ...taurusData.stats, spacePledged: taurusData.spacePledgedData.toString() });
+        console.log('Chronos data extracted:', { ...chronosData.stats, spacePledged: chronosData.spacePledgedData.toString() });
         results.push(
           sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: 'taurus',
+            range: 'Chronos',
             valueInputOption: 'USER_ENTERED',
             resource: {
               values: [[
                 timestamp,
-                taurusData.stats.nodeCount || '',
-                taurusData.spacePledgedData.toString(),
-                taurusData.stats.subspaceNodeCount || '',
-                taurusData.stats.spaceAcresNodeCount || '',
-                taurusData.stats.linuxNodeCount || '',
-                taurusData.stats.windowsNodeCount || '',
-                taurusData.stats.macosNodeCount || ''
+                chronosData.stats.nodeCount || '',
+                chronosData.spacePledgedData.toString(),
+                chronosData.stats.subspaceNodeCount || '',
+                chronosData.stats.spaceAcresNodeCount || '',
+                chronosData.stats.linuxNodeCount || '',
+                chronosData.stats.windowsNodeCount || '',
+                chronosData.stats.macosNodeCount || ''
               ]]
             },
           })
         );
       } else {
-        console.log('Taurus data was recently updated. Skipping.');
+        console.log('Chronos data was recently updated. Skipping.');
       }
 
       if (shouldUpdateMainnet) {

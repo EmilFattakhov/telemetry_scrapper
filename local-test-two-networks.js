@@ -119,8 +119,8 @@ async function scrapePageData(page, url, networkName) {
 async function getSpacePledgedData(network) {
   console.log(`Fetching space pledged data for ${network}`);
   try {
-    if (network === 'taurus') {
-      const api = await activate({ networkId: 'taurus' });
+    if (network === 'chronos') {
+      const api = await activate({ networkId: 'chronos' });
       const data = await spacePledged(api);
       console.log(`${network} space pledged data:`, data);
       return data;
@@ -155,49 +155,49 @@ async function runScript() {
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--dns-prefetch-disable']
     });
     
-    const [taurusPage, mainnetPage] = await Promise.all([
+    const [chronosPage, mainnetPage] = await Promise.all([
       browser.newPage(),
       browser.newPage()
     ]);
 
     // Enable console log collection for debugging
-    taurusPage.on('console', msg => console.log('Taurus Page Console:', msg.text()));
+    chronosPage.on('console', msg => console.log('Chronos Page Console:', msg.text()));
     mainnetPage.on('console', msg => console.log('mainnet Page Console:', msg.text()));
 
-    const [taurusStats, mainnetStats] = await Promise.all([
-      scrapePageData(taurusPage, 'https://telemetry.subspace.foundation/#list/0x295aeafca762a304d92ee1505548695091f6082d3f0aa4d092ac3cd6397a6c5e', 'taurus'),
+    const [chronosStats, mainnetStats] = await Promise.all([
+      scrapePageData(chronosPage, 'https://telemetry.subspace.network/#list/0x91912b429ce7bf2975440a0920b46a892fddeeaed6ccc11c93f2d57ad1bd69ab', 'Chronos'),
       scrapePageData(mainnetPage, 'https://telemetry.subspace.network/#list/0x66455a580aabff303720aa83adbe6c44502922251c03ba73686d5245da9e21bd', 'mainnet')
     ]);
 
-    const [taurusSpacePledged, mainnetSpacePledged] = await Promise.all([
-      getSpacePledgedData('taurus'),
+    const [chronosSpacePledged, mainnetSpacePledged] = await Promise.all([
+      getSpacePledgedData('chronos'),
       getSpacePledgedData('mainnet')
     ]);
 
     const timestamp = new Date().toISOString();
 
     // Only append data if stats are not null
-    if (taurusStats.nodeCount !== null) {
+    if (chronosStats.nodeCount !== null) {
       await sheets.spreadsheets.values.append({
         spreadsheetId,
-        range: 'taurus',
+        range: 'Chronos',
         valueInputOption: 'USER_ENTERED',
         resource: {
           values: [[
             timestamp,
-            taurusStats.nodeCount,
-            taurusSpacePledged.toString(),
-            taurusStats.subspaceNodeCount,
-            taurusStats.spaceAcresNodeCount,
-            taurusStats.linuxNodeCount,
-            taurusStats.windowsNodeCount,
-            taurusStats.macosNodeCount
+            chronosStats.nodeCount,
+            chronosSpacePledged.toString(),
+            chronosStats.subspaceNodeCount,
+            chronosStats.spaceAcresNodeCount,
+            chronosStats.linuxNodeCount,
+            chronosStats.windowsNodeCount,
+            chronosStats.macosNodeCount
           ]]
         },
       });
-      console.log('Taurus data appended to Google Sheet');
+      console.log('Chronos data appended to Google Sheet');
     } else {
-      console.log('Skipping Taurus data append due to null values');
+      console.log('Skipping Chronos data append due to null values');
     }
 
     if (mainnetStats.nodeCount !== null) {
