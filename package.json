@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@autonomys/auto-consensus": "^1.0.11",
-    "@autonomys/auto-utils": "^1.0.11",
+    "@autonomys/auto-consensus": "^1.5.17",
+    "@autonomys/auto-utils": "^1.5.17",
     "@netlify/functions": "^2.8.1",
     "@sparticuz/chromium": "^126.0.0",
     "axios": "^1.7.2",
